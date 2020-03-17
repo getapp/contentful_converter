@@ -45,11 +45,10 @@ module ContentfulConverter
       end
 
       def normalize_imgs(html_node)
-        find_nodes(html_node, 'img').each do |elem|
-          if elem.parent
-            elem.parent.content = elem.parent.text + elem.to_html
-          else
-            elem = create_text_node(elem.to_s, html_node)
+        html_node.traverse do |elem|
+          if elem.name == 'img'
+            new_node = create_text_node(elem.to_s, html_node)
+            elem.replace(new_node)
           end
         end
       end
