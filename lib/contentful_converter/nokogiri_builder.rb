@@ -46,9 +46,13 @@ module ContentfulConverter
 
       def normalize_imgs(html_node)
         html_node.traverse do |elem|
-          if elem.name == 'img'
-            new_node = create_text_node(elem.to_s, html_node)
-            elem.replace(new_node)
+          next unless elem.name == 'img'
+
+          text_node = create_text_node(elem.to_s, html_node)
+          if elem.parent.name == '#document-fragment' || elem.parent.name == 'p'
+            elem.replace(text_node)
+          else
+            elem.parent.swap(wrap_in_p(text_node))
           end
         end
       end
@@ -98,6 +102,12 @@ module ContentfulConverter
 
       def find_nodes(html_node, element)
         html_node.css(*element)
+      end
+
+      def wrap_in_p(img)
+        p_node = Nokogiri::XML::Node.new('p', img)
+        p_node.content = img
+        p_node
       end
 
       def create_text_node(text, html_node)
