@@ -49,10 +49,11 @@ module ContentfulConverter
           next unless elem.name == 'img'
 
           text_node = create_text_node(elem.to_s, html_node)
-          if elem.parent.name == '#document-fragment' || elem.parent.name == 'p'
+          parent_elem = elem.parent
+          if %w[#document-fragment p].include?(parent_elem.name)
             elem.replace(text_node)
           else
-            elem.parent.swap(wrap_in_p(text_node))
+            add_img_as_sibling(parent_elem, elem)
           end
         end
       end
@@ -104,10 +105,10 @@ module ContentfulConverter
         html_node.css(*element)
       end
 
-      def wrap_in_p(img)
-        p_node = Nokogiri::XML::Node.new('p', img)
-        p_node.content = img
-        p_node
+      def add_img_as_sibling(parent_elem, elem)
+        valid_children_nodeset = parent_elem.children.css(':not(img)')
+        parent_elem.children = valid_children_nodeset
+        parent_elem.add_next_sibling(elem)
       end
 
       def create_text_node(text, html_node)
