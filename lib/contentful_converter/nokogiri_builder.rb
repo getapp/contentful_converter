@@ -53,7 +53,7 @@ module ContentfulConverter
           if %w[#document-fragment p].include?(parent_elem.name)
             elem.replace(text_node)
           else
-            add_img_as_sibling(parent_elem, elem)
+            add_img_as_sibling(parent_elem, text_node)
           end
         end
       end
