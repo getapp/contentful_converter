@@ -77,10 +77,18 @@ describe ContentfulConverter::NokogiriBuilder do
       end
 
       context 'when the html has an <img> element' do
-        let(:html) { '<section>test<img src="test.jpg" /></section>' }
-        let(:expected_html) { 'test&lt;img src="test.jpg"&gt;' }
+        it 'converts the img to text' do
+          html = '<section>test<img src="test.jpg" /></section>'
+          expected_html = 'test&lt;img src="test.jpg"&gt;'
 
-        it 'converts it to embed and moves it out of the paragraph' do
+          result = described_class.build(html)
+          expect(result.to_html).to eq(expected_html)
+        end
+
+        it 'makes a new sibling tag when embedded to anything that is not a <p>' do
+          html = '<strong>HI <img src="https://getapp.wpengine.com/wp-content/uploads/Top-Rated_Graph-FreshBooks.png" alt=""></strong>'
+          expected_html = '<strong>HI </strong>&lt;img src="https://getapp.wpengine.com/wp-content/uploads/Top-Rated_Graph-FreshBooks.png" alt=""&gt;'
+
           result = described_class.build(html)
           expect(result.to_html).to eq(expected_html)
         end
