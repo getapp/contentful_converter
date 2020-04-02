@@ -53,7 +53,7 @@ module ContentfulConverter
           if %w[#document-fragment p].include?(parent_elem.name)
             elem.replace(text_node)
           else
-            add_img_as_sibling(parent_elem, text_node)
+            add_elems_as_siblings(parent_elem, text_node)
           end
         end
       end
@@ -105,8 +105,9 @@ module ContentfulConverter
         html_node.css(*element)
       end
 
-      def add_img_as_sibling(parent_elem, elem)
+      def add_elems_as_siblings(parent_elem, elem)
         valid_children_nodeset = parent_elem.children.css(':not(img)')
+        parent_elem.children.find_all(&:text?).each { |n| valid_children_nodeset.push(n) }
         parent_elem.children = valid_children_nodeset
         parent_elem.add_next_sibling(elem)
       end
