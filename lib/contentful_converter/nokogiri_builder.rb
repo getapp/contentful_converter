@@ -52,6 +52,8 @@ module ContentfulConverter
           parent_elem = elem.parent
           if %w[#document-fragment p].include?(parent_elem.name)
             elem.replace(text_node)
+          elsif parent_elem.name == 'a'
+            parent_elem.replace(text_node)
           else
             add_elems_as_siblings(parent_elem, text_node)
           end
