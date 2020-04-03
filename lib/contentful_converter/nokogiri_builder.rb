@@ -46,9 +46,16 @@ module ContentfulConverter
 
       def normalize_imgs(html_node)
         html_node.traverse do |elem|
-          if elem.name == 'img'
-            new_node = create_text_node(elem.to_s, html_node)
-            elem.replace(new_node)
+          next unless elem.name == 'img'
+
+          text_node = create_text_node(elem.to_s, html_node)
+          parent_elem = elem.parent
+          if %w[#document-fragment p].include?(parent_elem.name)
+            elem.replace(text_node)
+          elsif parent_elem.name == 'a'
+            parent_elem.replace(text_node)
+          else
+            add_elems_as_siblings(parent_elem, text_node)
           end
         end
       end
@@ -98,6 +105,13 @@ module ContentfulConverter
 
       def find_nodes(html_node, element)
         html_node.css(*element)
+      end
+
+      def add_elems_as_siblings(parent_elem, elem)
+        valid_children_nodeset = parent_elem.children.css(':not(img)')
+        parent_elem.children.find_all(&:text?).each { |n| valid_children_nodeset.push(n) }
+        parent_elem.children = valid_children_nodeset
+        parent_elem.add_next_sibling(elem)
       end
 
       def create_text_node(text, html_node)
